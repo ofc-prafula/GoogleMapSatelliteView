@@ -1,2 +1,0 @@
-# GoogleMapSatelliteView
-Created with CodeSandbox
