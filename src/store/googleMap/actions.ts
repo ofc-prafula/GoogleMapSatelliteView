@@ -1,5 +1,5 @@
-import { IParentDetails } from "../propertySearch/types";
-import { AsyncAction } from "store";
+import { IParentDetails } from "./../propertySearch/types";
+import { AsyncAction } from "../index";
 import { IPropertySearchRequest } from "../propertySearch/types";
 import {
   getPropertyDetails,
@@ -52,6 +52,20 @@ export function setPredictiveSearchResponse(
   };
 }
 
+export function fetchAndSetPredictiveSearchResult(): AsyncAction<void> {
+  return (dispatch, getState) => {
+    return mapsServices
+      .getPlacePredictions(getState().googleMap)
+      .then((searchResponse: IAutocompletePrediction[]) => {
+        dispatch(setPredictiveSearchResponse(searchResponse));
+      })
+      .catch((errorMessage: string) => {
+        const error = new Error(errorMessage);
+        dispatch({ type: GoogleMapTypeKeys.ERROR, error });
+      });
+  };
+}
+
 export function setGeocoderLocationType(
   searchResponse: google.maps.GeocoderResult,
   isPropertyDetailsRequired: boolean
@@ -80,6 +94,43 @@ export function setGeocoderLocationType(
     dispatch(setBounds(searchResponse.geometry.viewport));
     dispatch(fetchDirectionServiceRoute(searchResponse.formatted_address));
     dispatch(setGeocodeAddressType(searchResponse.types[0]));
+  };
+}
+
+export function fetchAndSetGeocoderResult(
+  address: string,
+  isPropertyDetailsRequired: boolean
+): AsyncAction<void> {
+  return (dispatch, getState) => {
+    return mapsServices
+      .getGeocoderResult(getState().googleMap, address)
+      .then((searchResponse: google.maps.GeocoderResult[]) => {
+        dispatch(
+          setGeocoderLocationType(searchResponse[0], isPropertyDetailsRequired)
+        );
+      })
+      .catch((errorMessage: string) => {
+        const error = new Error(errorMessage);
+        dispatch({ type: GoogleMapTypeKeys.ERROR, error });
+      });
+  };
+}
+
+export function fetchReverseGeocoderResult(
+  latlng: google.maps.LatLng
+): AsyncAction<void> {
+  return (dispatch, getState) => {
+    return mapsServices
+      .getReverseGeocoderResult(getState().googleMap, latlng)
+      .then((searchResponse: google.maps.GeocoderResult[]) => {
+        const { formatted_address } = searchResponse[0];
+        dispatch(setPredictiveQuery(formatted_address));
+        dispatch(fetchAndSetGeocoderResult(formatted_address, true));
+      })
+      .catch((errorMessage: string) => {
+        const error = new Error(errorMessage);
+        dispatch({ type: GoogleMapTypeKeys.ERROR, error });
+      });
   };
 }
 

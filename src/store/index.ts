@@ -1,8 +1,8 @@
 import { combineReducers, Reducer, AnyAction } from "redux";
-import { ThunkAction, ThunkDispatch } from "react-redux";
+import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { connectRouter } from "connected-react-router";
 // import { reducer as formReducer } from "redux-form";
-import { createBrowserHistory } from "history";
+import { createBrowserHistory, History } from "history";
 
 import configureStore from "./configureStore";
 
