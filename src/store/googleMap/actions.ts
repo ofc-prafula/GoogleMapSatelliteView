@@ -1,54 +1,91 @@
-import { IParentDetails } from "./../propertySearch/types";
+// import { IParentDetails } from "../propertySearch/types";
 import { AsyncAction } from "../index";
 import { IPropertySearchRequest } from "../propertySearch/types";
-import {
-  getPropertyDetails,
-  setParentDetails
-} from "../propertySearch/actions";
+// import {
+//   getPropertyDetails,
+//   setParentDetails
+// } from "../propertySearch/actions";
 import { mapsServices } from "../../services/googleServiceAPI";
 import {
   GoogleMapTypeKeys,
-  IAutocompletePrediction,
+  // IAutocompletePrediction,
   geocoderAddressTypes
 } from "./types";
 
-export function setGoogleObject(googleObj: any): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_GOOGLE_OBJECT,
-      googleObjResp: googleObj
-    });
-  };
-}
+// export function setGoogleObject(googleObj: any): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_GOOGLE_OBJECT,
+//       googleObjResp: googleObj
+//     });
+//   };
+// }
 
-export function setPredictiveSearchRequest(
-  autocompletionRequest: google.maps.places.AutocompletionRequest
+// export function setPredictiveSearchRequest(
+//   autocompletionRequest: google.maps.places.AutocompletionRequest
+// ): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_REQUEST,
+//       request: autocompletionRequest
+//     });
+//   };
+// }
+
+// export function resetPredictiveSearchResponse(): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_RESPONSE,
+//       searchResponse: []
+//     });
+//   };
+// }
+
+// export function setPredictiveSearchResponse(
+//   searchResponse: IAutocompletePrediction[]
+// ) {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_RESPONSE,
+//       searchResponse
+//     });
+//   };
+// }
+
+export function fetchReverseGeocoderResult(
+  latlng: google.maps.LatLng
 ): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_REQUEST,
-      request: autocompletionRequest
-    });
+  return (dispatch, getState) => {
+    return mapsServices
+      .getReverseGeocoderResult(getState().googleMap, latlng)
+      .then((searchResponse: google.maps.GeocoderResult[]) => {
+        const { formatted_address } = searchResponse[0];
+        dispatch(setPredictiveQuery(formatted_address));
+        dispatch(fetchAndSetGeocoderResult(formatted_address, true));
+      })
+      .catch((errorMessage: string) => {
+        const error = new Error(errorMessage);
+        dispatch({ type: GoogleMapTypeKeys.ERROR, error });
+      });
   };
 }
 
-export function resetPredictiveSearchResponse(): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_RESPONSE,
-      searchResponse: []
-    });
-  };
-}
-
-export function setPredictiveSearchResponse(
-  searchResponse: IAutocompletePrediction[]
-) {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_PREDICTIVE_SEARCH_RESPONSE,
-      searchResponse
-    });
+export function fetchAndSetGeocoderResult(
+  address: string,
+  isPropertyDetailsRequired: boolean
+): AsyncAction<void> {
+  return (dispatch, getState) => {
+    return mapsServices
+      .getGeocoderResult(getState().googleMap, address)
+      .then((searchResponse: google.maps.GeocoderResult[]) => {
+        dispatch(
+          setGeocoderLocationType(searchResponse[0], isPropertyDetailsRequired)
+        );
+      })
+      .catch((errorMessage: string) => {
+        const error = new Error(errorMessage);
+        dispatch({ type: GoogleMapTypeKeys.ERROR, error });
+      });
   };
 }
 
@@ -70,32 +107,19 @@ export function setGeocoderLocationType(
   searchResponse: google.maps.GeocoderResult,
   isPropertyDetailsRequired: boolean
 ): AsyncAction<void> {
-  return (dispatch, getState) => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_GEOCODER_LOCATION_TYPE,
-      locationType: searchResponse.geometry.location_type
-    });
-    if (!isPropertyDetailsRequired) {
-      const parentDetails: IParentDetails = {
-        zoom: getState().googleMap.currentZoomLevel,
-        lat: getState().googleMap.latitude,
-        lng: getState().googleMap.longitude,
-        bounds: getState().googleMap.bounds,
-        address: getState().googleMap.predictiveSearchQuery
-      };
-
-      dispatch(setParentDetails(parentDetails));
-    } else {
-      dispatch(
-        getPropertyDetails(createpropertyDetailsRequest(searchResponse))
-      );
-    }
-    dispatch(setLatLng(searchResponse.geometry.location));
-    dispatch(setBounds(searchResponse.geometry.viewport));
+  return dispatch => {
     dispatch(fetchDirectionServiceRoute(searchResponse.formatted_address));
-    dispatch(setGeocodeAddressType(searchResponse.types[0]));
   };
 }
+
+// export function setLatLng(coordinates: google.maps.LatLng): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_LAT_LNG,
+//       coordinates
+//     });
+//   };
+// }
 
 export function fetchAndSetGeocoderResult(
   address: string,
@@ -134,14 +158,6 @@ export function fetchReverseGeocoderResult(
   };
 }
 
-export function setLatLng(coordinates: google.maps.LatLng): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_LAT_LNG,
-      coordinates
-    });
-  };
-}
 
 export function fetchStreetViewPanoramaData(
   location: google.maps.LatLng
@@ -184,25 +200,25 @@ export function fetchDirectionServiceRoute(
   };
 }
 
-export function setBounds(
-  viewport: google.maps.LatLngBounds
-): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_BOUNDS,
-      viewport
-    });
-  };
-}
+// export function setBounds(
+//   viewport: google.maps.LatLngBounds
+// ): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_BOUNDS,
+//       viewport
+//     });
+//   };
+// }
 
-export function setCurrentZoomLevel(zoom: number): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_CURRENT_ZOOM_LEVEL,
-      zoom
-    });
-  };
-}
+// export function setCurrentZoomLevel(zoom: number): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_CURRENT_ZOOM_LEVEL,
+//       zoom
+//     });
+//   };
+// }
 
 export function setPredictiveQuery(query: string): AsyncAction<void> {
   return dispatch => {
@@ -213,14 +229,14 @@ export function setPredictiveQuery(query: string): AsyncAction<void> {
   };
 }
 
-export function setPolygonColor(polygonColor: string): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_POLYGON_COLOR,
-      polygonColor
-    });
-  };
-}
+// export function setPolygonColor(polygonColor: string): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_POLYGON_COLOR,
+//       polygonColor
+//     });
+//   };
+// }
 
 export function createpropertyDetailsRequest(
   geocodeResponse: google.maps.GeocoderResult
@@ -271,11 +287,11 @@ export function fnFindAddressLongName(
   return geocoderAddress ? geocoderAddress.long_name.trim() : "";
 }
 
-export function setGeocodeAddressType(addressType: string): AsyncAction<void> {
-  return dispatch => {
-    dispatch({
-      type: GoogleMapTypeKeys.SET_GEOCODE_ADDRESS_TYPE,
-      addressType
-    });
-  };
-}
+// export function setGeocodeAddressType(addressType: string): AsyncAction<void> {
+//   return dispatch => {
+//     dispatch({
+//       type: GoogleMapTypeKeys.SET_GEOCODE_ADDRESS_TYPE,
+//       addressType
+//     });
+//   };
+// }

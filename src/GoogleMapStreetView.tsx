@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { connect } from "react-redux";
-import { IApplicationState } from "store";
+import { IApplicationState } from "../src/store/index";
 import styled from "styled-components";
 
 export interface IPropertySearchStreetViewProps {

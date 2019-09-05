@@ -1,7 +1,9 @@
 import { IGoogleMapState } from "../store/googleMap/types";
 export const mapsServices = {
   getDirectionServiceRoute,
-  getStreetViewPanoramaData
+  getStreetViewPanoramaData,
+  getReverseGeocoderResult,
+  getGeocoderResult
 };
 
 function getDirectionServiceRoute(
@@ -45,6 +47,35 @@ function getStreetViewPanoramaData(
     service.getPanorama(
       streetViewLocationRequest,
       (result: google.maps.StreetViewPanoramaData, status: string) =>
+        status === "OK" ? resolve(result) : reject(error)
+    );
+  });
+}
+
+function getReverseGeocoderResult(
+  googleMap: IGoogleMapState,
+  latlng: google.maps.LatLng
+) {
+  return new Promise((resolve, reject) => {
+    const { googleObj } = googleMap;
+    const service = new googleObj.maps.Geocoder();
+    const error = "Google Geocoder API has returned error with error code";
+    service.geocode(
+      { location: latlng },
+      (result: google.maps.GeocoderResult[], status: string) =>
+        status === "OK" ? resolve(result) : reject(error)
+    );
+  });
+}
+
+function getGeocoderResult(googleMap: IGoogleMapState, address: string) {
+  return new Promise((resolve, reject) => {
+    const { googleObj } = googleMap;
+    const service = new googleObj.maps.Geocoder();
+    const error = "Google Geocoder API has returned error with error code";
+    service.geocode(
+      { address },
+      (result: google.maps.GeocoderResult[], status: string) =>
         status === "OK" ? resolve(result) : reject(error)
     );
   });
