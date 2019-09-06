@@ -9,7 +9,7 @@ import { Dispatch } from "../src/store/index";
 // import { connect } from "react-redux";
 
 interface IGoogleComponentTestProps {
-  dispatch: Dispatch;
+  dispatch?: Dispatch;
 }
 
 export default class GoogleComponentTest extends React.Component<
