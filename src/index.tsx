@@ -45,6 +45,7 @@ export default class GoogleMapComponent extends React.Component<
     );
   }
 
+  //This is the call to action method which internally calls Google Javascript API
   private callGoogleAction = () => {
     const { dispatch } = this.props;
     dispatch(
