@@ -1,40 +1,51 @@
 import * as React from "react";
 import { render } from "react-dom";
+import { Provider } from "react-redux";
 import styles from "./styles";
 import styled from "styled-components";
 import PropertySearchStreetView from "../src/GoogleMapStreetView";
 import "./styles.css";
 import { fetchAndSetGeocoderResult } from "../src/store/googleMap/actions";
 import { Dispatch } from "../src/store/index";
-// import { connect } from "react-redux";
+import { store } from "../src/store/index";
+// import { ErrorBoundary } from "../ErrorBoundary";
 
 interface IGoogleComponentTestProps {
-  dispatch: Dispatch;
+  dispatch?: Dispatch;
 }
 
-export default class GoogleComponentTest extends React.Component<
+export default class GoogleMapComponent extends React.Component<
   IGoogleComponentTestProps
 > {
   public render() {
     return (
-      <React.Fragment>
-        <div className="App">
-          <h1>Google Street View Sample</h1>
-          <button
-            type="button"
-            style={styles.button}
-            onClick={() => this.callGoogleAction()}
-          >
-            Google Street View
-          </button>
-          <ControlsContainer>
-            <PropertySearchStreetView />
-          </ControlsContainer>
-        </div>
-      </React.Fragment>
+      <Provider store={store}>
+        <React.Fragment>
+          <div className="App">
+            <h1>Google Street View Sample</h1>
+            <button
+              type="button"
+              style={styles.button}
+              onClick={() => this.callGoogleAction()}
+            >
+              Google Street View
+            </button>
+            <ControlsContainer>
+              {/* ----------------------------------------------------------------------------------We
+              are getting an error here while calling PropertySearchStreetView
+              Component--------- 
+              Possible reason as suggested by Arturo could
+              be that the component is being rendered/instantiate before we call
+              this---------------------------------------------------------------------------------- */}
+              {/* <PropertySearchStreetView /> */}
+            </ControlsContainer>
+          </div>
+        </React.Fragment>
+      </Provider>
     );
   }
 
+  //This is the call to action method which internally calls Google Javascript API
   private callGoogleAction = () => {
     const { dispatch } = this.props;
     dispatch(
@@ -52,5 +63,4 @@ const ControlsContainer = styled.div`
   width: 700px;
 `;
 
-render(<GoogleComponentTest />, document.getElementById("root"));
-//export default connect(mapStateToProps);
+render(<GoogleMapComponent />, document.getElementById("root"));
