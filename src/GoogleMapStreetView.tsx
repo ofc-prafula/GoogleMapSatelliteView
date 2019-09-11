@@ -4,6 +4,7 @@ import * as ReactDOM from "react-dom";
 import { connect } from "react-redux";
 import { IApplicationState } from "../src/store/index";
 import styled from "styled-components";
+import GoogleApiComponent from "../src/GoogleApiComponent";
 
 export interface IPropertySearchStreetViewProps {
   googleObj: any;
@@ -40,7 +41,8 @@ class PropertySearchStreetView extends React.Component<
   }
 
   public componentDidUpdate() {
-    if (this.props.loading === false) {
+    const { googleObj, lat, lng, loading } = this.props;
+    if (this.props.loading === false && googleObj && lat && lng) {
       this.initialize();
     }
   }
@@ -98,19 +100,19 @@ class PropertySearchStreetView extends React.Component<
         streetViewPanorama.setPano(panoID);
       }
     } else {
-      if (this.streetViewSatelliteRef != null) {
-        const streetViewSatellite = new googleObj.maps.Map(
-          ReactDOM.findDOMNode(this.streetViewSatelliteRef) as HTMLElement,
-          {
-            zoom: 19,
-            center: positionCenter,
-            disableDefaultUI: true,
-            zoomControl: false,
-            mapTypeId: googleObj.maps.MapTypeId.SATELLITE
-          }
-        );
-        streetViewSatellite.setTilt(0);
-      }
+      // if (this.streetViewSatelliteRef != null) {
+      //   const streetViewSatellite = new googleObj.maps.Map(
+      //     ReactDOM.findDOMNode(this.streetViewSatelliteRef) as HTMLElement,
+      //     {
+      //       zoom: 19,
+      //       center: positionCenter,
+      //       disableDefaultUI: true,
+      //       zoomControl: false,
+      //       mapTypeId: googleObj.maps.MapTypeId.SATELLITE
+      //     }
+      //   );
+      //   streetViewSatellite.setTilt(0);
+      // }
     }
   }
 }
@@ -132,7 +134,13 @@ function mapStateToProps(state: IApplicationState) {
   };
 }
 
-export default connect(mapStateToProps)(PropertySearchStreetView);
+// export default connect(mapStateToProps)(PropertySearchStreetView);
+
+export default connect(mapStateToProps)(
+  GoogleApiComponent({
+    apiKey: "AIzaSyC3vYAq4fWdHJnYwe4DFZUYJHoX5eHr44g"
+  })(PropertySearchStreetView)
+);
 
 export const StreetView = styled.div`
   height: 100%;

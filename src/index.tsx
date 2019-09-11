@@ -6,15 +6,18 @@ import styled from "styled-components";
 import PropertySearchStreetView from "../src/GoogleMapStreetView";
 import "./styles.css";
 import { fetchAndSetGeocoderResult } from "../src/store/googleMap/actions";
-import { Dispatch } from "../src/store/index";
+//import { Dispatch } from "../src/store/index";
+import { Dispatch } from "redux";
 import { store } from "../src/store/index";
+import { connect } from "react-redux";
 // import { ErrorBoundary } from "../ErrorBoundary";
 
 interface IGoogleComponentTestProps {
   dispatch?: Dispatch;
 }
 
-export default class GoogleMapComponent extends React.Component<
+
+class GoogleMapComponentTest extends React.Component<
   IGoogleComponentTestProps
 > {
   public render() {
@@ -37,7 +40,9 @@ export default class GoogleMapComponent extends React.Component<
               Possible reason as suggested by Arturo could
               be that the component is being rendered/instantiate before we call
               this---------------------------------------------------------------------------------- */}
-              {/* <PropertySearchStreetView /> */}
+
+              <PropertySearchStreetView />
+
             </ControlsContainer>
           </div>
         </React.Fragment>
@@ -47,13 +52,14 @@ export default class GoogleMapComponent extends React.Component<
 
   //This is the call to action method which internally calls Google Javascript API
   private callGoogleAction = () => {
-    const { dispatch } = this.props;
-    dispatch(
+    // const { dispatch } = this.props;
+    store.dispatch(
       fetchAndSetGeocoderResult(
         "906 North Kings Road, West Hollywood, CA, USA",
         true
       )
     );
+    // );
   };
 }
 
@@ -63,4 +69,15 @@ const ControlsContainer = styled.div`
   width: 700px;
 `;
 
-render(<GoogleMapComponent />, document.getElementById("root"));
+
+//function mapStateToProps(state) {
+// function mapStateToProps(dispatch) {
+//   return {
+//     dispatch
+//   };
+// }
+
+render(<GoogleMapComponentTest />, document.getElementById("root"));
+
+export default connect()(GoogleMapComponentTest);
+

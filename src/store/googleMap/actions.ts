@@ -3,6 +3,15 @@ import { IPropertySearchRequest } from "../propertySearch/types";
 import { mapsServices } from "../../services/googleServiceAPI";
 import { GoogleMapTypeKeys, geocoderAddressTypes } from "./types";
 
+export function setGoogleObject(googleObj: any) {
+  return dispatch => {
+    dispatch({
+      type: GoogleMapTypeKeys.SET_GOOGLE_OBJECT,
+      googleObjResp: googleObj
+    });
+  };
+}
+
 export function fetchReverseGeocoderResult(
   latlng: google.maps.LatLng
 ): AsyncAction<void> {
