@@ -16,6 +16,7 @@ interface IGoogleComponentTestProps {
   dispatch?: Dispatch;
 }
 
+
 class GoogleMapComponentTest extends React.Component<
   IGoogleComponentTestProps
 > {
@@ -39,7 +40,9 @@ class GoogleMapComponentTest extends React.Component<
               Possible reason as suggested by Arturo could
               be that the component is being rendered/instantiate before we call
               this---------------------------------------------------------------------------------- */}
+
               <PropertySearchStreetView />
+
             </ControlsContainer>
           </div>
         </React.Fragment>
@@ -66,6 +69,7 @@ const ControlsContainer = styled.div`
   width: 700px;
 `;
 
+
 //function mapStateToProps(state) {
 // function mapStateToProps(dispatch) {
 //   return {
@@ -76,3 +80,4 @@ const ControlsContainer = styled.div`
 render(<GoogleMapComponentTest />, document.getElementById("root"));
 
 export default connect()(GoogleMapComponentTest);
+
